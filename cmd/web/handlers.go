@@ -17,19 +17,15 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
-		app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		app.serverError(w, r, err)
 		return
 	}
 
 	err = tmpl.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		app.serverError(w, r, err)
 		return
 	}
-
-
 }
 
 func (app *application)snippetView(w http.ResponseWriter, r *http.Request) {
