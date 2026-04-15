@@ -8,6 +8,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kyzercmd/snipio/internal/models"
 )
 
 type config struct {
@@ -18,6 +19,7 @@ type config struct {
 
 type application struct {
 	logger *slog.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -40,10 +42,10 @@ func main() {
 
 	app := &application{
 		logger: logger,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	logger.Info("Starting server", slog.String("addr", ":4000"))
-
 
 	err = http.ListenAndServe(cfg.addr, app.routes())
 	logger.Error(err.Error())
