@@ -12,22 +12,23 @@ import (
 )
 
 type config struct {
-	addr string
+	addr      string
 	staticDir string
-	dsn string
+	dsn       string
 }
 
 type application struct {
-	logger *slog.Logger
+	config   config
+	logger   *slog.Logger
 	snippets *models.SnippetModel
 }
 
 func main() {
 	var cfg config
-	
+
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP Network Address")
 	flag.StringVar(&cfg.staticDir, "staticDir", "./ui/static", "Static Assets Path")
-	flag.StringVar(&cfg.dsn,"dsn", "web:1234@/Snipio?parseTime=true", "MySQL Data Source Name")
+	flag.StringVar(&cfg.dsn, "dsn", "web:1234@/Snipio?parseTime=true", "MySQL Data Source Name")
 
 	flag.Parse()
 
@@ -41,7 +42,8 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		logger: logger,
+		config:   cfg,
+		logger:   logger,
 		snippets: &models.SnippetModel{DB: db},
 	}
 
@@ -52,7 +54,7 @@ func main() {
 	os.Exit(1)
 }
 
-func openDb (dsn string) (*sql.DB, error){
+func openDb(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
