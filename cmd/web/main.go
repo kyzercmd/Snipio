@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kyzercmd/snipio/internal/models"
 )
@@ -23,6 +24,7 @@ type application struct {
 	logger        *slog.Logger
 	templateCache map[string]*template.Template
 	snippets      *models.SnippetModel
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -49,11 +51,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	app := &application{
 		config:        cfg,
 		logger:        logger,
 		templateCache: templateCache,
 		snippets:      &models.SnippetModel{DB: db},
+		formDecoder:   formDecoder,
 	}
 
 	logger.Info("Starting server", slog.String("addr", ":4000"))
