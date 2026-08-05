@@ -1,0 +1,19 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: snipio_db
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: Snipio
+      MYSQL_USER: web
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+volumes:
+  db-data:
+
+
