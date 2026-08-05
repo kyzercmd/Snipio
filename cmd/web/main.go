@@ -7,7 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kyzercmd/snipio/internal/models"
@@ -20,11 +23,12 @@ type config struct {
 }
 
 type application struct {
-	config        config
-	logger        *slog.Logger
-	templateCache map[string]*template.Template
-	snippets      *models.SnippetModel
-	formDecoder   *form.Decoder
+	config         config
+	logger         *slog.Logger
+	templateCache  map[string]*template.Template
+	snippets       *models.SnippetModel
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -32,10 +36,9 @@ func main() {
 
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP Network Address")
 	flag.StringVar(&cfg.staticDir, "staticDir", "./ui/static", "Static Assets Path")
-	flag.StringVar(&cfg.dsn, "dsn", "web:1234@/Snipio?parseTime=true", "MySQL Data Source Name")
+	flag.StringVar(&cfg.dsn, "dsn", "web:1234@tcp(localhost:3306)/Snipio?parseTime=true", "MySQL Data Source Name")
 
 	flag.Parse()
-
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	db, err := openDb(cfg.dsn)
@@ -53,12 +56,17 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
-		config:        cfg,
-		logger:        logger,
-		templateCache: templateCache,
-		snippets:      &models.SnippetModel{DB: db},
-		formDecoder:   formDecoder,
+		config:         cfg,
+		logger:         logger,
+		templateCache:  templateCache,
+		snippets:       &models.SnippetModel{DB: db},
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	logger.Info("Starting server", slog.String("addr", ":4000"))
