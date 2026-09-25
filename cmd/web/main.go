@@ -28,6 +28,7 @@ type application struct {
 	logger         *slog.Logger
 	templateCache  map[string]*template.Template
 	snippets       *models.SnippetModel
+	users          *models.UserModel
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
 }
@@ -66,6 +67,7 @@ func main() {
 		logger:         logger,
 		templateCache:  templateCache,
 		snippets:       &models.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
@@ -75,10 +77,13 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:      cfg.addr,
-		Handler:   app.routes(),
-		ErrorLog:  slog.NewLogLogger(logger.Handler(), slog.LevelError),
-		TLSConfig: tlsConfig,
+		Addr:         cfg.addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	logger.Info("Starting server", slog.String("addr", ":4000"))
