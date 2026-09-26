@@ -1,6 +1,6 @@
 module github.com/kyzercmd/snipio
 
-go 1.25.7
+go 1.26.0
 
 require (
 	github.com/alexedwards/scs/mysqlstore v0.0.0-20251002162104-209de6e426de
@@ -10,4 +10,7 @@ require (
 	github.com/justinas/alice v1.2.0
 )
 
-require filippo.io/edwards25519 v1.1.0 // indirect
+require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+)
