@@ -14,6 +14,7 @@ type templateData struct {
 	Snippets        []models.Snippet
 	Form            any
 	IsAuthenticated bool
+	CSRFToken       string
 	Flash           string
 }
 
